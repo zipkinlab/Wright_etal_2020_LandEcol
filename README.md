@@ -6,7 +6,7 @@
 
 ### Code/Data DOI:
 
-### Please cantact the first author for questions about the code or data: Alexander D. Wright (adwright@msu.edu)
+### Please contact the first author for questions about the code or data: Alexander D. Wright (adwright@msu.edu)
 
 ________________________________________________________________________________________________________________________________________
 
