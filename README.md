@@ -33,3 +33,15 @@ Overall, we found a positive effect of park size and a negative effect of isolat
 Our analysis reveals how scale can mediate interpretation of results from scientific studies, which might help explain conflicting narratives concerning the impacts of fragmentation in the literature. Our hierarchical framework can help managers and policymakers elucidate the relevant spatial scale(s) to target conservation efforts.
 
 ## Code
+1. [MRCM.R](https://github.com/lxwrght/Wright_etal_InReview_LandEcol/blob/master/MRCM.R): R Code to run the multiregion community occupancy model (via JAGS through R).
+2. [MRCM.txt](https://github.com/lxwrght/Wright_etal_InReview_LandEcol/blob/master/MRCM.txt): Multiregion community occupancy JAGS model.
+3. [MRCM_REsults-Plots.R](https://github.com/lxwrght/Wright_etal_InReview_LandEcol/blob/master/MRCM_Results-Plots.R): Post analysis script for published tables, results, and figures.
+
+## Data
+1. "MRCM_data.R" - An R object that contains all formatted data objects used in "MRCM.R" abd "MRCM_Results-Plots.R", including
+   - Formatted array of detection data: X
+   - Standardized Covariate Data: Park_area (area of each park), Forest_cov (percent forest cover of each park), Isol (percent Isolation of each park), Site_area (area of each wetland), Hydro_state (hydroperiod of each wetland), Conn (connectivity of each wetland), Precip (cumulative precipitation of each park), Cond (conductivity of each wetland), JDay (julian date)
+   - Covariate Data (not standardized): Cond_unscaled, Conn_unscaled, Site_area_unscaled, Forest_cov_unscaled, Isol_unscaled, JDay_unscaled, Park_area_unscaled
+   - Model notation values: J (# of sites), minJ (index of first site of each region), maxJ (index of last site of each region), K (# of replicates for site by year), Y (# of years), minY (first year a ark was surveyed), I (# of species), M (# of zeroes for data augmentation), R (# of parks) 
+2. 
+
