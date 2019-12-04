@@ -1,0 +1,277 @@
+
+model{
+
+#########
+## Part - General Model Description
+#########
+
+
+# Author: A.D. Wright
+# Description: This static occupancy model analyzes 2005-2017 NCRN amphgibian data. It treats species & park hierarchically.
+                  #Uses components of Zipkin et al. 2009 (based on Dorazio & Royle 2005, Dorazio et al. 2006) and Sutherland et al. 2016
+
+# Subscripts:
+  # i = Species; I = nSpecies; M = nZeroes
+  # j = Site; J = nSites; minJ = Vector containing indices of first site in a region; maxJ = ....of last site in a region
+  # r = Region; R = nRegions
+  # k = Visit; K = nReps (in years that site[j] is not sampled, K is set to 1 to generate missing data)
+  # y = Year; Y = nYears; minY = Vector containg indices of first year of sampling for a site
+
+# Effects 
+  # Omega:     Intercept + Forest Cover + Park Area + Urban
+  # Occupancy: Hydroperiod (Intercept) + Maximum Wetland Area + Year + Precipitation + Conn
+  # Detection: Intercept + Julian Date + (Julian Date)^2 + RE of Time
+
+#########
+## Part - Priors
+#########
+
+##
+#### Global-level priors
+##
+
+#Data Augmentation
+  #Intercept
+mu.omega ~ dnorm(0,0.37)    
+  #Effects
+alpha.omega ~ dnorm(0,0.37)
+beta.omega ~ dnorm(0,0.37)
+gamma.omega ~ dnorm(0,0.37)
+
+#Occupancy
+  #Intercepts
+mean.a0.global ~ dunif(0.01,0.99)
+mu.a0.global <- log(mean.a0.global/(1-mean.a0.global))
+tau.a0.global ~ dgamma(0.1,0.1)
+tau.a0 ~ dgamma(0.1,0.1)
+     #Hydro
+mu.a0_S.global ~ dnorm(0,0.37)
+tau.a0_S.global ~ dgamma(0.1,0.1) 
+tau.a0_S ~ dgamma(0.1,0.1)
+mu.a0_P.global ~ dnorm(0,0.37)
+tau.a0_P.global ~ dgamma(0.1,0.1) 
+tau.a0_P ~ dgamma(0.1,0.1)
+  #Effects
+mu.a1.global ~ dnorm(0,0.1)                                   #Defines mean of a1[i,r], slope of Area (psi) for each population
+tau.a1.global ~ dgamma(0.1,0.1)                               #Defines precision (1/sd^2) of mu.a1[r]
+tau.a1 ~ dgamma(0.1,0.1)                                      #Defines precision (1/sd^2) of a1[i,r]
+tau.a2.time ~ dgamma(0.1,0.1)                                 #Defines precision (1/sd^2) of a2[y,i,r], random effect of year (psi) for each population
+mu.a3.global ~ dnorm(0,0.1)                                   #Defines mean of a3[i,r], slope of Precipitation (psi) for each population
+tau.a3.global ~ dgamma(0.1,0.1)                               #Defines precision (1/sd^2) of mu.a3[r]
+tau.a3 ~ dgamma(0.1,0.1)                                      #Defines precision (1/sd^2) of a3[i,r]
+mu.a4.global ~ dnorm(0,0.1)                                   #Defines mean of a4[i,r], slope of connectivity (psi) for each population
+tau.a4.global ~ dgamma(0.1,0.1)                               #Defines precision (1/sd^2) of mu.a4[r]
+tau.a4 ~ dgamma(0.1,0.1)                                      #Defines precision (1/sd^2) of a4[i,r]
+mu.a5.global ~ dnorm(0,0.1)                                   #Defines mean of a5[i,r], slope of conductivity(psi) for each population
+tau.a5.global ~ dgamma(0.1,0.1)                               #Defines precision (1/sd^2) of mu.a5[r]
+tau.a5 ~ dgamma(0.1,0.1)                                      #Defines precision (1/sd^2) of a5[i,r]
+
+ 
+#Detection
+  #Intercepts
+mu.b0.global ~ dnorm(0,0.37)                                  #Defines mean of b0[i,r], intercept (p) for each population
+tau.b0.global ~ dgamma(0.1,0.1)                               #Defines precision (1/sd^2) of mu.b0[r]
+tau.b0 ~ dgamma(0.1,0.1)                                      #Defines precision (1/sd^2) of b0[i,r]
+  #Effects
+mu.b1.global ~ dnorm(0,0.1)                                   #Defines mean of b1[i,r], slope of JDay (p) for each population
+tau.b1.global ~ dgamma(0.1,0.1)                               #Defines precision (1/sd^2) of mu.b1[r]
+tau.b1 ~ dgamma(0.1,0.1)                                      #Defines precision (1/sd^2) of b1[i,r]
+mu.b2.global ~ dnorm(0,0.1)                                   #Defines mean of b2[i,r], slope of JDay^2 (p) for each population
+tau.b2.global ~ dgamma(0.1,0.1)                               #Defines precision (1/sd^2) of mu.b2[r]
+tau.b2 ~ dgamma(0.1,0.1)                                      #Defines precision (1/sd^2) of b2[i,r]
+  #Random-effect of time
+tau.b.time ~ dgamma(0.1,0.1)                                  #Defines precision (1/sd^2) of eta[y], random effect of year (p) for all populations
+for (y in 1:Y){
+  eta[y] ~ dnorm(0,tau.b.time)                            
+} #y
+
+
+
+##
+#### Region-level priors
+##
+    
+for (r in 1:R) {
+
+  #Data Augmentation
+  logit(omega[r]) <- mu.omega + alpha.omega*Park_area[r] + beta.omega*Forest_cov[r] + gamma.omega*Isol[r]
+  
+  #Occupancy
+    #Intercept  
+  mu.a0[r] ~ dnorm(mu.a0.global, tau.a0.global)
+  mu.a0_S[r] ~ dnorm(mu.a0_S.global,tau.a0_S.global)
+  mu.a0_P[r] ~ dnorm(mu.a0_P.global,tau.a0_P.global)
+    #Slopes  
+  mu.a1[r] ~ dnorm(mu.a1.global, tau.a1.global)
+    #mu.a2[r] ~ dnorm(mu.a2.global, tau.a2.global)
+  mu.a3[r] ~ dnorm(mu.a3.global, tau.a3.global)
+  mu.a4[r] ~ dnorm(mu.a4.global, tau.a4.global) 
+  mu.a5[r] ~ dnorm(mu.a5.global, tau.a5.global) 
+
+  #Detection
+    #Intercept
+  mu.b0[r] ~ dnorm(mu.b0.global, tau.b0.global)
+    #Slopes
+  mu.b1[r] ~ dnorm(mu.b1.global, tau.b1.global)
+  mu.b2[r] ~ dnorm(mu.b2.global, tau.b2.global)
+    
+    
+##
+#### Species-level priors
+##
+
+  for (i in 1:(I+M)) {
+
+    #Data Augmentation
+    W[i,r] ~ dbern(omega[r])
+
+    #Occupancy
+      #Intercepts
+    a0[i,r] ~ dnorm(mu.a0[r],tau.a0)
+    a0_S[i,r] ~ dnorm(mu.a0_S[r],tau.a0_S)
+    a0_P[i,r] ~ dnorm(mu.a0_P[r],tau.a0_P)
+      #Slopes
+    a1[i,r] ~ dnorm(mu.a1[r],tau.a1)
+      #a2[i,r] ~ dnorm(mu.a2[r],tau.a2)
+    a3[i,r] ~ dnorm(mu.a3[r],tau.a3)
+    a4[i,r] ~ dnorm(mu.a4[r],tau.a4)
+    a5[i,r] ~ dnorm(mu.a5[r],tau.a5)
+      #Random effect of time
+    for(y in minY[r]:Y){
+      a2[y,i,r] ~ dnorm(0, tau.a2.time)
+    }
+
+    #Detection
+      #Intercepts
+    b0[i,r] ~ dnorm(mu.b0[r],tau.b0)
+      #Slopes
+    b1[i,r] ~ dnorm(mu.b1[r],tau.b1)
+    b2[i,r] ~ dnorm(mu.b2[r],tau.b2)
+
+#########
+## Part - Likelihood
+#########
+
+##
+#### Estimating Occupancy (Z-Array)
+##
+
+    for (j in minJ[r]:maxJ[r]) {
+      for (y in minY[r]:Y) { 
+
+        logit(psi[j,y,i,r]) <- a0[i,r] + a0_S[i,r]*Hydro_state[j,2] + a0_P[i,r]*Hydro_state[j,3] + a1[i,r]*Site_area[j,y] + a2[y,i,r] + a3[i,r]*Precip[y,r] + a4[i,r]*Conn[j] + a5[i,r]*Cond[j,y]
+        
+        Z[j,y,i,r] ~ dbern(psi[j,y,i,r]*W[i,r])  
+
+##
+#### Estimating Detection (Data-Array)
+##
+
+        for (k in 1:K[j,y]) {
+      
+          logit(p[j,k,y,i,r]) <- b0[i,r] + b1[i,r]*JDay[j,k,y] + b2[i,r]*(JDay[j,k,y]^2) + eta[y]
+          
+          X[j,k,y,i,r] ~ dbern(p[j,k,y,i,r]*Z[j,y,i,r])
+
+        } #k
+      } #y
+    } #j
+  } #i
+} #r
+
+##
+#### Generating Missing Covariate Data
+##
+
+for (r in 1:R) {
+  for (j in minJ[r]:maxJ[r]) {
+    for (y in minY[r]:Y) {
+
+      Site_area[j,y] ~ dnorm(0, 1)
+      Cond[j,y] ~ dnorm(0, 1)
+
+      for (k in 1:K[j,y]) {
+
+        JDay[j,k,y] ~ dnorm(0, 1)
+
+      } #k
+    } #y
+  } #j
+} #r
+
+#########
+## Part -  Derived Parameters
+#########
+
+##
+#### Estimating mean occupancy and detection rates of observed species (and their corresponding intercepts)
+##
+
+logit(mean.a0_S.global) <- mu.a0.global+mu.a0_S.global
+logit(mean.a0_P.global) <- mu.a0.global+mu.a0_P.global
+
+for(r in 1:R) {
+
+    logit(mean.a0[r]) <- mu.a0[r]
+    logit(mean.a0_S[r]) <- mu.a0_S[r] + mu.a0[r]
+    logit(mean.a0_P[r]) <- mu.a0_P[r] + mu.a0[r]
+
+  for(i in 1:I) {
+  
+    logit(b0.obs[i,r]) <- b0[i,r]
+    logit(a0.obs[i,r]) <- a0[i,r]
+    logit(a0_S.obs[i,r]) <- a0_S[i,r] + a0[i,r]
+    logit(a0_P.obs[i,r]) <- a0_P[i,r] + a0[i,r]
+    a1.avg[i,r] <- a1[i,r]
+      #a2.avg[i,r] <- a2[i,r]
+    a3.avg[i,r] <- a3[i,r]
+    a4.avg[i,r] <- a4[i,r]
+    a5.avg[i,r] <- a5[i,r]
+    W.real[i,r] <- W[i,r]
+      
+    for(y in minY[r]:Y) {
+
+      a2.t.avg[y,i,r] <- a2[y,i,r]
+      psi.avg[y,i,r] <- mean(psi[minJ[r]:maxJ[r],y,i,r])
+
+    } #y
+  } #i
+} #r
+
+##
+#### Estimating region-level species richness
+##
+
+for(r in 1:R) {
+
+  Npark[r] <- sum(W[,r])
+
+} #r
+
+##
+#### Estimating site-level species richness by year
+##
+
+for(r in 1:R) {
+  for (j in minJ[r]:maxJ[r]) {
+    for (y in minY[r]:Y) {
+
+      nSite[j,y] <- sum(Z[j,y,1:I,r])
+
+    } #y
+  } #j 	
+} #r
+
+for(r in 1:R) {
+  for (y in minY[r]:Y) {
+  
+  Nsite.avg[r,y] <- mean(nSite[minJ[r]:maxJ[r],y]) 
+  
+    } #y 	
+} #r
+
+#########
+## Part -  END
+#########
+
+} #model
