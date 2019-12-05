@@ -43,5 +43,4 @@ Our analysis reveals how scale can mediate interpretation of results from scient
    - Standardized Covariate Data: Park_area (area of each park), Forest_cov (percent forest cover of each park), Isol (percent Isolation of each park), Site_area (area of each wetland), Hydro_state (hydroperiod of each wetland), Conn (connectivity of each wetland), Precip (cumulative precipitation of each park), Cond (conductivity of each wetland), JDay (julian date)
    - Covariate Data (not standardized): Cond_unscaled, Conn_unscaled, Site_area_unscaled, Forest_cov_unscaled, Isol_unscaled, JDay_unscaled, Park_area_unscaled
    - Model notation values: J (# of sites), minJ (index of first site of each region), maxJ (index of last site of each region), K (# of replicates for site by year), Y (# of years), minY (first year a park was surveyed), I (# of species), M (# of zeroes for data augmentation), R (# of parks) 
-2. [Data Management](https://github.com/lxwrght/Wright_etal_InReview_LandEcol/tree/master/Data_Management) - Raw data files and data management code. 
 
