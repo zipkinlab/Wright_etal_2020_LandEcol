@@ -1,0 +1,14 @@
+{
+    "description": "<p>This is archived code for the paper entitled 'A hierarchical analysis of habitat area, connectivity, and quality on amphibian diversity across spatial scales' published in Landscape Ecology in 2020.</p>", 
+    "license": "other-open", 
+    "title": "zipkinlab/Wright_etal_2020_LandEcol: Archived data/code", 
+    "version": "v1.1", 
+    "upload_type": "software", 
+    "publication_date": "2020", 
+    "creators": [ 
+        {
+            "affiliation": "Michigan State University", 
+            "name": "Alex Wright"
+        }
+    ]
+}
