@@ -4,7 +4,7 @@
 
 ### Landscape Ecology
 
-### Code/Data DOI:
+### Code/Data DOI: [![DOI](https://zenodo.org/badge/226198365.svg)](https://zenodo.org/badge/latestdoi/226198365)
 
 ### Please contact the first author for questions about the code or data: Alexander D. Wright (adwright@msu.edu)
 
