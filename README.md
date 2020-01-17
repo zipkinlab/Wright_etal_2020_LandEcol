@@ -32,7 +32,7 @@ Overall, we found a positive effect of park size and a negative effect of isolat
 
 Our analysis reveals how scale can mediate interpretation of results from scientific studies, which might help explain conflicting narratives concerning the impacts of fragmentation in the literature. Our hierarchical framework can help managers and policymakers elucidate the relevant spatial scale(s) to target conservation efforts.
 
-## Analysis Code
+## Code
 1. [MRCM.R](https://github.com/lxwrght/Wright_etal_InReview_LandEcol/blob/master/MRCM.R): R Code to run the multiregion community occupancy model (via JAGS through R).
 2. [MRCM.txt](https://github.com/lxwrght/Wright_etal_InReview_LandEcol/blob/master/MRCM.txt): Multiregion community occupancy JAGS model.
 3. [MRCM_Results-Plots.R](https://github.com/lxwrght/Wright_etal_InReview_LandEcol/blob/master/MRCM_Results-Plots.R): Post analysis script for published tables, results, and figures.
